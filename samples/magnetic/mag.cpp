@@ -7,7 +7,7 @@ double BX = 0.0;
 double BY = 0.0;
 double BZ = 1.0;
 
-const int N = 100000;
+const int N = 1000;
 
 struct vec {
   double x, y, z;
@@ -92,13 +92,10 @@ void dump() {
 int main() {
   init();
   double t = 0.0;
-  for (int i = 0; i < 10000; i++) {
-    //calc_euler();
+  for (int i = 0; i < 100; i++) {
     calc_rk2();
     t += dt;
-    if ((i % 1000) == 0) {
-      //std::cout << t << " " << energy() << std::endl;
-    }
   }
-  dump();
+  //dump();
+  printf("%f %f %f\n",r[0].x, r[0].y, r[0].z);
 }
