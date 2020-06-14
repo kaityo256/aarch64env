@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     scons \
     sudo \
     vim \
+    qemu-user-binfmt \
     zlib1g-dev
 
 USER ${USER}
