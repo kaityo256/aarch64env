@@ -35,3 +35,7 @@ RUN cd ${HOME} \
 
 RUN cd ${HOME} \
  && git clone https://github.com/kaityo256/aarch64env.git
+
+RUN cd ${HOME} \
+ && echo alias gem5=\'~/build/riken_simulator/build/ARM/gem5.opt ~/build/riken_simulator/configs/example/se.py -c\' >> .bashrc \
+ && echo alias ag++=\'aarch64-linux-gnu-g++-8 -static -march=armv8-a+sve\' >> .bashrc
