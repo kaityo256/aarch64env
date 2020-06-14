@@ -31,3 +31,6 @@ RUN cd ${HOME} \
  && cd build/riken_simulator \
  && sed -i "369,372s:^:#:" SConstruct \
  && scons build/ARM/gem5.opt -j 20
+
+RUN cd ${HOME} \
+ && git clone https://github.com/kaityo256/aarch64env.git
