@@ -6,14 +6,34 @@ Aarch64上でのコードを開発するためのDocker環境。
 
 ## Dockerイメージの作成
 
+まずリポジトリをcloneしよう。
+
 ```sh
 git clone https://github.com/kaityo256/aarch64env.git
+```
+
+以下、研究室サーバ上で作業する場合には、`newgrp docker`を実行してDockerグループに所属しておく必要がある。
+
+リポジトリの`docker`ディレクトリにDockerファイルがあるので、ビルドするとイメージができる。
+
+```sh
 cd aarch64env
 cd docker
 docker build -t kaityo256/aarch64env .
 ```
 
 `kaityo256`の部分は自分の名前に変更すること。
+
+なお、このイメージのビルドにはかなり時間がかかる。そこで、ビルド時間短縮のため、内部で並列ビルドを指定している箇所がある。`Dockerfile`の以下の部分だ。
+
+```Dockerfile
+RUN cd ${HOME} \
+ && cd build/riken_simulator \
+ && sed -i "369,372s:^:#:" SConstruct \
+ && scons build/ARM/gem5.opt -j 20
+```
+
+最後の`-j 20`は、「20プロセスで並列ビルドせよ」という指示だ。研究室クラスタが20コアなのでこのような指定をしているが、家でビルドする場合には、環境に合わせて`-j 4`などとすると良い。
 
 ## コンテナの作成と接続
 
@@ -224,6 +244,12 @@ _Z4funcv:
 aarch64-linux-gnu-g++-8 -march=armv8-a+sve -O3 -S multiplyadd.cpp
 ```
 
+この長ったらしいコンパイルコマンドを入力するのは面倒なので、`ag++`という名前でエイリアスを作ってある。以下を実行することでも同じ結果になる。
+
+```sh
+ag++ -O3 -S multiplyadd.cpp
+```
+
 アセンブリを見てみよう。
 
 ```asm
@@ -260,16 +286,24 @@ _Z4funcv:
 
 ## シミュレーション
 
+`magnetic`というディレクトリに、「一週間でなれる！スパコンプログラマ」のDay 7で紹介された、磁場中の荷電粒子の運動のシミュレーションコードがある。
+
 ```sh
 $ cd ..
 $ cd magnetic
 ```
+
+まずはx86向けにコンパイル、実行してみよう。
 
 ```sh
 $ g++ -O3 mag.cpp
 $ ./a.out
 -0.447835 0.514910 -0.718851
 ```
+
+1000粒子を100ステップ計算し、最後に0番目の粒子の座標を表示している。
+
+同様にARM aarch64向けにクロスコンパイルし、gem5上で実行してみよう。
 
 ```sh
 $ ag++ -O3 mag.cpp
@@ -278,6 +312,8 @@ $ gem5 ./a.out
 -0.447835 0.514910 -0.718851
 Exiting @ tick 1425974000 because exiting with last active thread context
 ```
+
+最後に、x86と同じ実行結果が表示され、かつ実行に`1425974000` tickかかったことがわかる。チューニングとは、最終的にかしこいアセンブリを出力し、このtick数を減らすのが目的となる。
 
 ## ライセンス
 
