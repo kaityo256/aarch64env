@@ -20,3 +20,4 @@ USER ${USER}
 WORKDIR /home/${USER}
 
 RUN echo 'alias vi=vim' >> /home/${USER}/.bashrc
+RUN echo 'alias ag++="aarch64-linux-gnu-g++ -static -march=armv8-a+sve -O2"' >> /home/${USER}/.bashrc
